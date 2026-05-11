@@ -23,6 +23,38 @@ export default function App() {
   const [modules, setModules] = useState<ModuleData[]>(INITIAL_MODULES);
   const [filterStatus, setFilterStatus] = useState<string>('All');
   const [searchQuery, setSearchQuery] = useState<string>('');
+  const [isSyncing, setIsSyncing] = useState<boolean>(false);
+
+  const handleExport = () => {
+    const dataStr = "data:text/json;charset=utf-8," + encodeURIComponent(JSON.stringify(modules, null, 2));
+    const downloadNode = document.createElement('a');
+    downloadNode.setAttribute("href", dataStr);
+    downloadNode.setAttribute("download", `suffacampus_audit_${new Date().toISOString().split('T')[0]}.json`);
+    document.body.appendChild(downloadNode);
+    downloadNode.click();
+    downloadNode.remove();
+  };
+
+  const handleAddModule = () => {
+    const newModule: ModuleData = {
+      id: `MOD-${Math.floor(Math.random() * 10000)}`,
+      name: `New Module ${modules.length + 1}`,
+      readiness: 0,
+      blockers: 0,
+      bugs: 0,
+      scalingRisk: 'High',
+      performanceRisk: 'High',
+      securityRisk: 'High',
+      status: 'In-Progress',
+      notes: ''
+    };
+    setModules([...modules, newModule]);
+  };
+
+  const handleSync = () => {
+    setIsSyncing(true);
+    setTimeout(() => setIsSyncing(false), 1000);
+  };
 
   const stats = useMemo(() => {
     const total = modules.length;
@@ -91,6 +123,7 @@ export default function App() {
             
             <div className="flex gap-4">
               <motion.button 
+                onClick={handleExport}
                 whileHover={{ scale: 1.02 }}
                 whileTap={{ scale: 0.98 }}
                 className="flex items-center gap-2 px-5 py-2.5 glass-card !bg-white/5 border-white/10 hover:border-white/20 text-sm font-semibold transition-all"
@@ -99,6 +132,7 @@ export default function App() {
                 Export Audit
               </motion.button>
               <motion.button 
+                onClick={handleAddModule}
                 whileHover={{ scale: 1.02 }}
                 whileTap={{ scale: 0.98 }}
                 className="flex items-center gap-2 px-5 py-2.5 bg-gradient-to-r from-purple-600 to-blue-600 rounded-xl text-sm font-bold shadow-lg shadow-purple-500/20 border border-purple-400/20"
@@ -183,8 +217,11 @@ export default function App() {
                    </div>
                 </div>
                 
-                <button className="p-2.5 rounded-xl bg-white/5 text-white/30 hover:text-white hover:bg-white/10 transition-all">
-                  <RotateCcw className="w-5 h-5" />
+                <button 
+                  onClick={handleSync}
+                  className="p-2.5 rounded-xl bg-white/5 text-white/30 hover:text-white hover:bg-white/10 transition-all"
+                >
+                  <RotateCcw className={`w-5 h-5 ${isSyncing ? 'animate-spin' : ''}`} />
                 </button>
              </div>
           </div>

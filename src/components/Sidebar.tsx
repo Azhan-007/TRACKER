@@ -1,3 +1,4 @@
+import { useState } from 'react';
 import { motion } from 'motion/react';
 import { 
   LayoutDashboard, 
@@ -13,12 +14,12 @@ import {
 } from 'lucide-react';
 
 const navItems = [
-  { icon: LayoutDashboard, label: 'Overview', active: true },
-  { icon: Layers, label: 'Modules', active: false },
-  { icon: ShieldCheck, label: 'Security Audit', active: false },
-  { icon: BarChart3, label: 'Performance', active: false },
-  { icon: AlertOctagon, label: 'Risk Analysis', active: false },
-  { icon: Terminal, label: 'Deployment Logs', active: false },
+  { icon: LayoutDashboard, label: 'Overview' },
+  { icon: Layers, label: 'Modules' },
+  { icon: ShieldCheck, label: 'Security Audit' },
+  { icon: BarChart3, label: 'Performance' },
+  { icon: AlertOctagon, label: 'Risk Analysis' },
+  { icon: Terminal, label: 'Deployment Logs' },
 ];
 
 const secondaryItems = [
@@ -27,6 +28,8 @@ const secondaryItems = [
 ];
 
 export default function Sidebar() {
+  const [activeTab, setActiveTab] = useState('Overview');
+
   return (
     <aside className="fixed left-0 top-0 h-screen w-64 glass-card rounded-none border-y-0 border-l-0 border-r-glass-border flex flex-col z-50">
       <div className="p-8 flex items-center gap-3">
@@ -41,26 +44,30 @@ export default function Sidebar() {
 
       <nav className="flex-1 px-4 py-4 space-y-2">
         <div className="text-[10px] uppercase tracking-[0.2em] text-white/30 px-4 mb-4 font-mono font-medium">Main Control</div>
-        {navItems.map((item) => (
-          <motion.button
-            key={item.label}
-            whileHover={{ x: 4 }}
-            className={`w-full flex items-center gap-3 px-4 py-3 rounded-xl transition-all duration-300 group ${
-              item.active 
-                ? 'bg-purple-500/10 text-purple-400 border border-purple-500/20' 
-                : 'text-white/50 hover:text-white/80 hover:bg-white/5'
-            }`}
-          >
-            <item.icon className="w-5 h-5" />
-            <span className="font-medium text-sm">{item.label}</span>
-            {item.active && (
-              <motion.div 
-                layoutId="active-pill"
-                className="ml-auto w-1.5 h-1.5 bg-purple-500 rounded-full shadow-[0_0_8px_rgba(168,85,247,0.8)]"
-              />
-            )}
-          </motion.button>
-        ))}
+        {navItems.map((item) => {
+          const isActive = activeTab === item.label;
+          return (
+            <motion.button
+              key={item.label}
+              onClick={() => setActiveTab(item.label)}
+              whileHover={{ x: 4 }}
+              className={`w-full flex items-center gap-3 px-4 py-3 rounded-xl transition-all duration-300 group ${
+                isActive 
+                  ? 'bg-purple-500/10 text-purple-400 border border-purple-500/20' 
+                  : 'text-white/50 hover:text-white/80 hover:bg-white/5'
+              }`}
+            >
+              <item.icon className="w-5 h-5" />
+              <span className="font-medium text-sm">{item.label}</span>
+              {isActive && (
+                <motion.div 
+                  layoutId="active-pill"
+                  className="ml-auto w-1.5 h-1.5 bg-purple-500 rounded-full shadow-[0_0_8px_rgba(168,85,247,0.8)]"
+                />
+              )}
+            </motion.button>
+          );
+        })}
       </nav>
 
       <div className="px-4 py-8 space-y-2 border-t border-glass-border">

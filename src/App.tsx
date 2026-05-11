@@ -1,16 +1,12 @@
 import { useState, useMemo, useEffect } from 'react';
 import { motion } from 'motion/react';
 import { 
-  Plus, 
-  Download, 
   Filter, 
   RotateCcw, 
-  LayoutDashboard, 
   AlertOctagon, 
   Bug, 
   ShieldCheck,
-  TrendingUp,
-  Activity
+  TrendingUp
 } from 'lucide-react';
 import Navbar from './components/Navbar';
 import ModuleTable from './components/ModuleTable';
@@ -38,34 +34,7 @@ export default function App() {
   const [searchQuery, setSearchQuery] = useState<string>('');
   const [isSyncing, setIsSyncing] = useState<boolean>(false);
 
-  const handleExport = () => {
-    const dataStr = "data:text/json;charset=utf-8," + encodeURIComponent(JSON.stringify(modules, null, 2));
-    const downloadNode = document.createElement('a');
-    downloadNode.setAttribute("href", dataStr);
-    downloadNode.setAttribute("download", `suffacampus_audit_${new Date().toISOString().split('T')[0]}.json`);
-    document.body.appendChild(downloadNode);
-    downloadNode.click();
-    downloadNode.remove();
-  };
 
-  const handleAddModule = () => {
-    const name = prompt('Enter the name of the new module:');
-    if (!name || name.trim() === '') return;
-
-    const newModule: ModuleData = {
-      id: `MOD-${Math.floor(Math.random() * 10000)}`,
-      name: name.trim(),
-      readiness: 0,
-      blockers: 0,
-      bugs: 0,
-      scalingRisk: 'High',
-      performanceRisk: 'High',
-      securityRisk: 'High',
-      status: 'In-Progress',
-      notes: ''
-    };
-    setModules([...modules, newModule]);
-  };
 
   const handleDeleteModule = (id: string) => {
     if (confirm('Are you sure you want to delete this module?')) {

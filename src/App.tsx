@@ -75,6 +75,7 @@ export default function App() {
 
   const handleSync = () => {
     setIsSyncing(true);
+    setModules(prev => [...prev]); // Force update to refresh the lastUpdated timestamp
     setTimeout(() => setIsSyncing(false), 1000);
   };
 
@@ -83,7 +84,7 @@ export default function App() {
     const ready = modules.filter(m => m.status === 'Ready').length;
     const totalBlockers = modules.reduce((acc, m) => acc + m.blockers, 0);
     const criticalRisks = modules.filter(m => m.scalingRisk === 'Critical' || m.securityRisk === 'Critical').length;
-    const avgReadiness = Math.round(modules.reduce((acc, m) => acc + m.readiness, 0) / total);
+    const avgReadiness = total > 0 ? Math.round(modules.reduce((acc, m) => acc + m.readiness, 0) / total) : 0;
 
     return {
       completion: avgReadiness,
@@ -148,28 +149,28 @@ export default function App() {
             <StatCard 
               label="Overall Readiness" 
               value={`${stats.completion}%`} 
-              trend="+12% weekly" 
+              trend={stats.completion === 100 ? "All Systems Go" : `${100 - stats.completion}% remaining`} 
               icon={TrendingUp} 
               color="purple" 
             />
             <StatCard 
               label="Active Blockers" 
               value={stats.blockers} 
-              trend="2 critical" 
+              trend={`${stats.criticalRisks} critical`} 
               icon={AlertOctagon} 
               color="red" 
             />
             <StatCard 
               label="Open Bugs" 
               value={modules.reduce((acc, m) => acc + m.bugs, 0)} 
-              trend="-5 resolved" 
+              trend={`${modules.filter(m => m.bugs > 0).length} modules affected`} 
               icon={Bug} 
               color="blue" 
             />
             <StatCard 
               label="Ready for Launch" 
               value={`${stats.readyModules}/${stats.total}`} 
-              trend="Next sync: 2h" 
+              trend={`${stats.total - stats.readyModules} modules pending`} 
               icon={ShieldCheck} 
               color="green" 
             />

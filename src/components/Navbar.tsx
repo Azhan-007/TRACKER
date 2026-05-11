@@ -47,7 +47,7 @@ export default function Navbar({ searchQuery, setSearchQuery }: NavbarProps) {
 
         <div className="flex items-center gap-3 pl-2 cursor-pointer group">
           <div className="text-right">
-            <p className="text-xs font-semibold text-white/90">Yasar Bro</p>
+            <p className="text-xs font-semibold text-white/90">Azhan</p>
             <p className="text-[10px] text-white/30 uppercase font-mono tracking-wider">CTO / Lead</p>
           </div>
           <div className="w-10 h-10 rounded-xl bg-gradient-to-tr from-purple-500 to-blue-500 p-0.5 group-hover:shadow-[0_0_15px_rgba(168,85,247,0.4)] transition-all">

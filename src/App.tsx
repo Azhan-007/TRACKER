@@ -12,7 +12,6 @@ import {
   TrendingUp,
   Activity
 } from 'lucide-react';
-import Sidebar from './components/Sidebar';
 import Navbar from './components/Navbar';
 import ModuleTable from './components/ModuleTable';
 import { StatCard } from './components/Common';
@@ -85,9 +84,8 @@ export default function App() {
 
   return (
     <div className="flex bg-graphite text-white font-sans overflow-hidden">
-      <Sidebar />
       
-      <main className="flex-1 ml-64 min-h-screen flex flex-col relative">
+      <main className="flex-1 min-h-screen flex flex-col relative w-full">
         {/* Background glow effects */}
         <div className="fixed top-[-10%] right-[-5%] w-[500px] h-[500px] bg-purple-600/10 rounded-full blur-[120px] pointer-events-none" />
         <div className="fixed bottom-[-10%] left-[20%] w-[600px] h-[600px] bg-blue-600/5 rounded-full blur-[150px] pointer-events-none" />
@@ -202,18 +200,9 @@ export default function App() {
 
              <div className="flex gap-4 pr-4">
                 <div className="flex items-center gap-3">
-                   <div className="flex -space-x-2">
-                      {[1,2,3,4].map(i => (
-                        <div key={i} className="w-8 h-8 rounded-full border-2 border-graphite bg-white/10 flex items-center justify-center overflow-hidden">
-                           <div className={`w-full h-full bg-gradient-to-br transition-all ${i % 2 === 0 ? 'from-purple-500/50 to-blue-500/50' : 'from-indigo-500/50 to-pink-500/50'} flex items-center justify-center text-[10px] font-bold text-white/80`}>
-                             U{i}
-                           </div>
-                        </div>
-                      ))}
-                   </div>
-                   <div className="text-[10px] font-mono text-white/30 tracking-tight leading-none">
-                      <span className="block text-white/60 font-bold">4 ENGINEERS</span>
-                      ONLINE NOW
+                   <div className="flex items-center gap-2 px-3 py-1.5 rounded-lg bg-green-500/10 border border-green-500/20">
+                     <div className="w-2 h-2 rounded-full bg-green-500 animate-pulse" />
+                     <span className="text-[10px] font-mono text-green-400 font-bold tracking-widest uppercase">System Online</span>
                    </div>
                 </div>
                 

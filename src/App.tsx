@@ -1,4 +1,4 @@
-import { useState, useMemo } from 'react';
+import { useState, useMemo, useEffect } from 'react';
 import { motion } from 'motion/react';
 import { 
   Plus, 
@@ -19,7 +19,21 @@ import { INITIAL_MODULES } from './constants';
 import { ModuleData } from './types';
 
 export default function App() {
-  const [modules, setModules] = useState<ModuleData[]>(INITIAL_MODULES);
+  const [modules, setModules] = useState<ModuleData[]>(() => {
+    const saved = localStorage.getItem('suffacampus_modules');
+    if (saved) {
+      try {
+        return JSON.parse(saved);
+      } catch (e) {
+        return INITIAL_MODULES;
+      }
+    }
+    return INITIAL_MODULES;
+  });
+
+  useEffect(() => {
+    localStorage.setItem('suffacampus_modules', JSON.stringify(modules));
+  }, [modules]);
   const [filterStatus, setFilterStatus] = useState<string>('All');
   const [searchQuery, setSearchQuery] = useState<string>('');
   const [isSyncing, setIsSyncing] = useState<boolean>(false);
@@ -35,9 +49,12 @@ export default function App() {
   };
 
   const handleAddModule = () => {
+    const name = prompt('Enter the name of the new module:');
+    if (!name || name.trim() === '') return;
+
     const newModule: ModuleData = {
       id: `MOD-${Math.floor(Math.random() * 10000)}`,
-      name: `New Module ${modules.length + 1}`,
+      name: name.trim(),
       readiness: 0,
       blockers: 0,
       bugs: 0,
@@ -48,6 +65,12 @@ export default function App() {
       notes: ''
     };
     setModules([...modules, newModule]);
+  };
+
+  const handleDeleteModule = (id: string) => {
+    if (confirm('Are you sure you want to delete this module?')) {
+      setModules(prev => prev.filter(m => m.id !== id));
+    }
   };
 
   const handleSync = () => {
@@ -224,6 +247,7 @@ export default function App() {
             <ModuleTable 
               data={filteredModules} 
               onUpdate={handleUpdateModule}
+              onDelete={handleDeleteModule}
             />
           </motion.div>
 

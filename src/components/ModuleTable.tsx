@@ -6,8 +6,7 @@ import {
   AlertTriangle, 
   Bug, 
   Shield, 
-  ExternalLink,
-  MessageSquare,
+  Trash2,
   ArrowUpDown
 } from 'lucide-react';
 import { ModuleData } from '../types';
@@ -16,9 +15,10 @@ import { StatusPill, RiskBadge, ProgressBar } from './Common';
 interface TableProps {
   data: ModuleData[];
   onUpdate: (id: string, updates: Partial<ModuleData>) => void;
+  onDelete: (id: string) => void;
 }
 
-export default function ModuleTable({ data, onUpdate }: TableProps) {
+export default function ModuleTable({ data, onUpdate, onDelete }: TableProps) {
   const [sortField, setSortField] = useState<keyof ModuleData>('readiness');
   const [sortOrder, setSortOrder] = useState<'asc' | 'desc'>('desc');
   const [expandedId, setExpandedId] = useState<string | null>(null);
@@ -143,16 +143,11 @@ export default function ModuleTable({ data, onUpdate }: TableProps) {
                   <td className="px-6 py-5">
                     <div className="flex justify-center gap-2">
                        <button 
-                         onClick={(e) => { e.stopPropagation(); alert(`Opening external dashboard for ${module.name}`); }}
-                         className="p-2 rounded-lg bg-white/5 hover:bg-white/10 hover:text-purple-400 transition-all"
+                         onClick={(e) => { e.stopPropagation(); onDelete(module.id); }}
+                         className="p-2 rounded-lg bg-red-500/10 text-red-400 hover:bg-red-500/20 hover:text-red-300 transition-all border border-red-500/20"
+                         title="Delete Module"
                        >
-                         <ExternalLink className="w-4 h-4" />
-                       </button>
-                       <button 
-                         onClick={(e) => { e.stopPropagation(); alert(`Opening team chat for ${module.name}`); }}
-                         className="p-2 rounded-lg bg-white/5 hover:bg-white/10 hover:text-blue-400 transition-all"
-                       >
-                         <MessageSquare className="w-4 h-4" />
+                         <Trash2 className="w-4 h-4" />
                        </button>
                     </div>
                   </td>

@@ -31,33 +31,343 @@ export const MODULE_NAMES = [
   "Activity Feed"
 ];
 
-const generateInitialData = (): ModuleData[] => {
-  return MODULE_NAMES.map((name, index) => {
-    // Generate some deterministic but realistic looking data
-    const readiness = index % 5 === 0 ? 100 : Math.floor(Math.random() * 40) + 60;
-    const blockers = index % 7 === 0 ? Math.floor(Math.random() * 3) + 1 : 0;
-    const bugs = Math.floor(Math.random() * 5);
-    
-    let status: ModuleData['status'] = 'In-Progress';
-    if (readiness === 100 && blockers === 0) status = 'Ready';
-    else if (blockers > 0) status = 'Blocked';
-    else if (readiness > 85) status = 'Hardening';
+// ─── Real production-readiness data based on full codebase audit (May 2026) ───
 
-    const levels: ModuleData['scalingRisk'][] = ['Low', 'Medium', 'High', 'Critical', 'None'];
-    
-    return {
-      id: `mod-${index}`,
-      name,
-      readiness,
-      blockers,
-      bugs,
-      scalingRisk: levels[Math.floor(Math.random() * 3)], // Mostly low/med/high
-      performanceRisk: levels[Math.floor(Math.random() * 3)],
-      securityRisk: levels[Math.floor(Math.random() * 2)], // Focus on low/med
-      status,
-      notes: index % 4 === 0 ? "Initial audit completed. Performance metrics within bounds." : ""
-    };
-  });
-};
-
-export const INITIAL_MODULES = generateInitialData();
+export const INITIAL_MODULES: ModuleData[] = [
+  {
+    id: "mod-0",
+    name: "Authentication & Sessions",
+    readiness: 92,
+    blockers: 0,
+    bugs: 1,
+    scalingRisk: "Low",
+    performanceRisk: "Low",
+    securityRisk: "Medium",
+    status: "Hardening",
+    notes: "Full session JWT system across all 3 apps. Firebase Auth + session bootstrap + JTI tracking + revocation. Cross-tenant protection enforced. Minor: Firebase fallback still enabled via AUTH_ALLOW_FIREBASE_FALLBACK env flag — should be disabled in production."
+  },
+  {
+    id: "mod-1",
+    name: "Student Management",
+    readiness: 85,
+    blockers: 0,
+    bugs: 1,
+    scalingRisk: "Low",
+    performanceRisk: "Low",
+    securityRisk: "Medium",
+    status: "Hardening",
+    notes: "CRUD working with auto-provisioning (Firebase Auth + Prisma User). Soft-delete, pagination (cursor-based), plan limit enforcement. P1 issue: Student email uses .internal domain — no password reset emails possible. Bulk import route exists."
+  },
+  {
+    id: "mod-2",
+    name: "Teacher Management",
+    readiness: 78,
+    blockers: 1,
+    bugs: 1,
+    scalingRisk: "Low",
+    performanceRisk: "Low",
+    securityRisk: "Low",
+    status: "Blocked",
+    notes: "CRUD with auto-provisioning and class assignment works. P0 BLOCKER: /auth/me returns empty assignedClasses[] — teachers see ALL classes instead of only their assigned ones. TeacherClassAssignment junction table exists but is not queried in auth response."
+  },
+  {
+    id: "mod-3",
+    name: "Attendance",
+    readiness: 60,
+    blockers: 3,
+    bugs: 2,
+    scalingRisk: "High",
+    performanceRisk: "Critical",
+    securityRisk: "Low",
+    status: "Blocked",
+    notes: "Mobile: ✅ Single + bulk marking with FN/AN sessions, offline queue. Webpanel: 3 P0 blockers — (1) bulk attendance fires N sequential POSTs instead of /attendance/bulk, (2) missing session field defaults everything to FN, (3) weekly dashboard makes 7 full-data fetches instead of using /attendance/stats endpoint. getAttendanceById fetches ALL records to find one."
+  },
+  {
+    id: "mod-4",
+    name: "Classes & Sections",
+    readiness: 90,
+    blockers: 0,
+    bugs: 0,
+    scalingRisk: "Low",
+    performanceRisk: "Low",
+    securityRisk: "None",
+    status: "Hardening",
+    notes: "Full CRUD on backend and webpanel. Section management with teacher assignment. ID-aware diff for section updates. No mobile UI for class management (admin manages via webpanel only — acceptable)."
+  },
+  {
+    id: "mod-5",
+    name: "Fees & Payments",
+    readiness: 65,
+    blockers: 1,
+    bugs: 2,
+    scalingRisk: "Medium",
+    performanceRisk: "Medium",
+    securityRisk: "Medium",
+    status: "In-Progress",
+    notes: "Dual model coexistence: Legacy Fee model (deprecated) and new FeeStructure + StudentFee + Payment system. Both are live in schema. Migration path unclear — which model does each frontend actually use? Overdue fee notification service exists. Fee stats and chart endpoints available. Razorpay integration exists for subscription billing but student fee payment gateway integration not verified end-to-end."
+  },
+  {
+    id: "mod-6",
+    name: "Library",
+    readiness: 85,
+    blockers: 0,
+    bugs: 0,
+    scalingRisk: "Low",
+    performanceRisk: "Low",
+    securityRisk: "None",
+    status: "Hardening",
+    notes: "Books CRUD + issue/return transactions + fines. Working across backend, webpanel, and mobile (student/teacher views). Stats endpoint available. Available copies tracking. Pro+ plan feature gate planned."
+  },
+  {
+    id: "mod-7",
+    name: "Results / Exams",
+    readiness: 85,
+    blockers: 0,
+    bugs: 0,
+    scalingRisk: "Low",
+    performanceRisk: "Low",
+    securityRisk: "None",
+    status: "Hardening",
+    notes: "Exam results CRUD across all 3 apps. Marks, grades, percentage, rank, pass/fail status. Published flag for controlling visibility. Student result detail view on mobile. Per-student result history endpoint."
+  },
+  {
+    id: "mod-8",
+    name: "Timetable",
+    readiness: 85,
+    blockers: 0,
+    bugs: 0,
+    scalingRisk: "Low",
+    performanceRisk: "Low",
+    securityRisk: "None",
+    status: "Hardening",
+    notes: "Day-wise timetable with periods, teacher-subject mapping, room numbers. Unique constraint per school/class/section/day. Working on backend, webpanel, and mobile. Admin can manage full timetable via mobile."
+  },
+  {
+    id: "mod-9",
+    name: "Assignments",
+    readiness: 72,
+    blockers: 0,
+    bugs: 1,
+    scalingRisk: "Low",
+    performanceRisk: "Low",
+    securityRisk: "None",
+    status: "In-Progress",
+    notes: "Backend routes (15KB) + mobile UI for teacher and student. Teacher creates assignments, student views/submits. File attachments supported. No webpanel UI — admin cannot manage assignments from web. Submission count tracking exists."
+  },
+  {
+    id: "mod-10",
+    name: "Events",
+    readiness: 88,
+    blockers: 0,
+    bugs: 0,
+    scalingRisk: "Low",
+    performanceRisk: "Low",
+    securityRisk: "None",
+    status: "Hardening",
+    notes: "Full CRUD across all 3 apps. Event types: Holiday, Exam, Sports, Cultural, Meeting, Other. Target audience filtering. Date range support. Image URL support. Mobile admin can create/manage events."
+  },
+  {
+    id: "mod-11",
+    name: "Notifications",
+    readiness: 55,
+    blockers: 1,
+    bugs: 0,
+    scalingRisk: "Medium",
+    performanceRisk: "Medium",
+    securityRisk: "None",
+    status: "In-Progress",
+    notes: "Infrastructure is extensive — 17.5KB notification service, queue service, preference service, push notification service, email templates, SendGrid integration, FCM device token model. HOWEVER: No trigger points wired in core flows (attendance marked, fee overdue, etc.). Notification delivery works but nothing actually fires notifications yet. DeviceToken model exists but push registration flow not verified."
+  },
+  {
+    id: "mod-12",
+    name: "Dashboard & Analytics",
+    readiness: 68,
+    blockers: 1,
+    bugs: 1,
+    scalingRisk: "High",
+    performanceRisk: "Critical",
+    securityRisk: "None",
+    status: "Blocked",
+    notes: "Role-based dashboards on all 3 apps. P0 BLOCKER: Webpanel weekly attendance chart fires 7 parallel full-data fetches (one per day) instead of using the /attendance/stats endpoint. For 500 students × 7 days = 3,500 records fetched client-side. Backend has proper stats endpoint that webpanel ignores."
+  },
+  {
+    id: "mod-13",
+    name: "Reports & Exports",
+    readiness: 55,
+    blockers: 0,
+    bugs: 1,
+    scalingRisk: "Medium",
+    performanceRisk: "High",
+    securityRisk: "None",
+    status: "In-Progress",
+    notes: "Backend: 20.9KB report service + 6.8KB export service. Routes registered for attendance/fee/result reports and CSV/PDF export. Webpanel has reports page. Report model stores generated report data with HTML output. NOT verified end-to-end — actual PDF generation and large dataset handling untested. No mobile reports."
+  },
+  {
+    id: "mod-14",
+    name: "Parent Portal",
+    readiness: 48,
+    blockers: 1,
+    bugs: 0,
+    scalingRisk: "Low",
+    performanceRisk: "Low",
+    securityRisk: "Medium",
+    status: "In-Progress",
+    notes: "Backend: Parent service (10KB), parent routes (7.8KB), ParentInvite model with invite codes. Webpanel has parent page. Invite code generation + expiry + usage tracking exists. HOWEVER: Full parent onboarding flow not traced end-to-end. Parent role exists in RBAC. No dedicated mobile parent screens — parent would use student views via linked studentIds."
+  },
+  {
+    id: "mod-15",
+    name: "Question Bank",
+    readiness: 72,
+    blockers: 0,
+    bugs: 0,
+    scalingRisk: "Low",
+    performanceRisk: "Low",
+    securityRisk: "None",
+    status: "In-Progress",
+    notes: "Backend route (5.7KB) + mobile UI for teacher (37KB — very large screen) and student (30KB). Questions with MCQ options, difficulty levels (Easy/Medium/Hard), subject/topic/class filtering. Add-question screen on mobile. No webpanel UI. School-scoped."
+  },
+  {
+    id: "mod-16",
+    name: "Subscriptions & Billing",
+    readiness: 80,
+    blockers: 0,
+    bugs: 0,
+    scalingRisk: "Low",
+    performanceRisk: "Low",
+    securityRisk: "Medium",
+    status: "Hardening",
+    notes: "Full subscription lifecycle engine — state machine (trial → active → past_due → expired → cancelled). Plan change with proration (12.8KB service). Razorpay payment processing (24KB service). Invoice generation. Webhook handling with idempotency (WebhookEvent model). Trial management. Usage tracking. Background workers for expiry checks. Webpanel subscription management (14.9KB frontend service)."
+  },
+  {
+    id: "mod-17",
+    name: "School Management",
+    readiness: 90,
+    blockers: 0,
+    bugs: 0,
+    scalingRisk: "Low",
+    performanceRisk: "Low",
+    securityRisk: "None",
+    status: "Hardening",
+    notes: "SuperAdmin school CRUD — largest backend service (32KB). Create school with subscription bootstrap + admin provisioning. Plan assignment, usage tracking, compatibility layer for schema drift. Webpanel SuperAdmin section. List with usage stats. Working end-to-end per audit."
+  },
+  {
+    id: "mod-18",
+    name: "Settings & Branding",
+    readiness: 85,
+    blockers: 0,
+    bugs: 0,
+    scalingRisk: "None",
+    performanceRisk: "None",
+    securityRisk: "None",
+    status: "Hardening",
+    notes: "White-label support: primary/secondary/accent colors, logo, favicon, sidebar style, font family, border radius, login tagline, footer text. SchoolConfig model for UI preferences. Backend + webpanel settings pages. Logo upload endpoint. No mobile settings UI (acceptable — admin-only)."
+  },
+  {
+    id: "mod-19",
+    name: "Audit Logs",
+    readiness: 92,
+    blockers: 0,
+    bugs: 0,
+    scalingRisk: "Low",
+    performanceRisk: "Low",
+    securityRisk: "None",
+    status: "Ready",
+    notes: "All critical operations write audit logs. Change snapshots (before/after JSON). Integrity hashing (previousHash + entryHash). Operational context (requestId, IP, userAgent, userRole). Queryable by action, user, resource, date range. Export endpoint. Enterprise plan feature gate planned."
+  },
+  {
+    id: "mod-20",
+    name: "Search",
+    readiness: 50,
+    blockers: 1,
+    bugs: 0,
+    scalingRisk: "High",
+    performanceRisk: "High",
+    securityRisk: "None",
+    status: "In-Progress",
+    notes: "Backend has @elastic/elasticsearch dependency + 10KB search service + search routes. Webpanel has search service. BLOCKER: Unclear if Elasticsearch is actually provisioned/running in any environment. If ES is down, search may fall back to Prisma full-text or just fail. No mobile search UI. Needs infrastructure verification."
+  },
+  {
+    id: "mod-21",
+    name: "User & Role Management",
+    readiness: 68,
+    blockers: 1,
+    bugs: 1,
+    scalingRisk: "None",
+    performanceRisk: "None",
+    securityRisk: "High",
+    status: "Blocked",
+    notes: "P1 BLOCKER: Backend RBAC defines roles [SuperAdmin, Admin, Staff, Teacher, Parent, Student] but the Prisma schema enum also includes Accountant and Principal. Webpanel middleware defines ACLs for Accountant/Principal. Backend permission.service.ts does NOT recognize them — any user with these roles gets 403 on every API call. Also: requirePasswordChange not enforced on webpanel login (P1 security issue)."
+  },
+  {
+    id: "mod-22",
+    name: "File Uploads / Storage",
+    readiness: 58,
+    blockers: 0,
+    bugs: 0,
+    scalingRisk: "Medium",
+    performanceRisk: "Medium",
+    securityRisk: "Medium",
+    status: "In-Progress",
+    notes: "Backend: 9.2KB storage service + 8.2KB upload routes. Multipart handling configured (50MB limit). Tenant-scoped upload/delete. Mobile has uploadService.ts. HOWEVER: Actual cloud storage integration not verified end-to-end (Firebase Cloud Storage vs Azure Blob). MIME type validation exists. Plan-based file size limits designed but not verified active."
+  },
+  {
+    id: "mod-23",
+    name: "Carousel",
+    readiness: 82,
+    blockers: 0,
+    bugs: 0,
+    scalingRisk: "None",
+    performanceRisk: "None",
+    securityRisk: "None",
+    status: "Hardening",
+    notes: "Mobile home screen banners. Backend carousel routes (3.9KB). Mobile admin carousel management screen (19.6KB). Carousel model with ordering, active flag, image URL. School-scoped. Simple feature, well-contained."
+  },
+  {
+    id: "mod-24",
+    name: "API Keys",
+    readiness: 70,
+    blockers: 0,
+    bugs: 0,
+    scalingRisk: "None",
+    performanceRisk: "None",
+    securityRisk: "Medium",
+    status: "In-Progress",
+    notes: "Backend: API key middleware (6.8KB) + routes. Key hashing, prefix-based identification (ek_live/ek_test), permission scoping, rate limiting per key, expiry. Webpanel has apiKeyService.ts (11KB). Enterprise plan feature. API key auth path exists as alternative to Firebase auth. Security: key rotation and revocation supported."
+  },
+  {
+    id: "mod-25",
+    name: "Data Privacy / GDPR",
+    readiness: 42,
+    blockers: 0,
+    bugs: 0,
+    scalingRisk: "None",
+    performanceRisk: "Medium",
+    securityRisk: "Low",
+    status: "In-Progress",
+    notes: "Backend: data-privacy routes (5.3KB), DataRequest model with export/deletion request types, status tracking (pending → processing → completed → rejected). Webpanel has dataPrivacyService.ts. HOWEVER: No frontend UI page found for data privacy management. Actual data export/deletion processing logic not verified. Scope field supports selecting which data categories to include."
+  },
+  {
+    id: "mod-26",
+    name: "Webhooks",
+    readiness: 78,
+    blockers: 0,
+    bugs: 0,
+    scalingRisk: "Low",
+    performanceRisk: "Low",
+    securityRisk: "Medium",
+    status: "Hardening",
+    notes: "Inbound: Razorpay webhook processing (19.8KB) with signature verification, idempotency (WebhookEvent model), failure tracking + retry queue (6.8KB). Outbound: WebhookConfig + WebhookDelivery models for school-configured outbound webhooks. Retry with backoff (max 3 attempts). Webhook failure dashboard for SuperAdmin. Integration routes (12.4KB) for managing webhook configs."
+  },
+  {
+    id: "mod-27",
+    name: "Activity Feed",
+    readiness: 68,
+    blockers: 0,
+    bugs: 0,
+    scalingRisk: "Low",
+    performanceRisk: "Low",
+    securityRisk: "None",
+    status: "In-Progress",
+    notes: "Backend: activity service (2.8KB) + routes (3.6KB). Activity model tracks student/teacher actions (assignment_submitted, attendance_marked, grade_posted). Mobile has activityService.ts + activity screens for both student (16KB) and teacher (14KB). Soft-delete support. Proper indexes for user-scoped and time-sorted queries. Action URL for deep linking."
+  }
+];

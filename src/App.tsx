@@ -14,8 +14,19 @@ import { StatCard } from './components/Common';
 import { INITIAL_MODULES } from './constants';
 import { ModuleData } from './types';
 
+// Bump this version whenever INITIAL_MODULES data is updated to force
+// a localStorage refresh for all existing visitors.
+const DATA_VERSION = '2026-05-11-audit';
+
 export default function App() {
   const [modules, setModules] = useState<ModuleData[]>(() => {
+    const savedVersion = localStorage.getItem('suffacampus_data_version');
+    if (savedVersion !== DATA_VERSION) {
+      // Data has been updated — clear stale localStorage and use fresh audit data
+      localStorage.removeItem('suffacampus_modules');
+      localStorage.setItem('suffacampus_data_version', DATA_VERSION);
+      return INITIAL_MODULES;
+    }
     const saved = localStorage.getItem('suffacampus_modules');
     if (saved) {
       try {

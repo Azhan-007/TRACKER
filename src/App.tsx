@@ -141,27 +141,6 @@ export default function App() {
                 Real-time audit of SuffaCampus ERP modules. Track deployment blockers, security risks, and scaling bottlenecks before the general availability release.
               </p>
             </div>
-            
-            <div className="flex gap-4">
-              <motion.button 
-                onClick={handleExport}
-                whileHover={{ scale: 1.02 }}
-                whileTap={{ scale: 0.98 }}
-                className="flex items-center gap-2 px-5 py-2.5 glass-card !bg-white/5 border-white/10 hover:border-white/20 text-sm font-semibold transition-all"
-              >
-                <Download className="w-4 h-4" />
-                Export Audit
-              </motion.button>
-              <motion.button 
-                onClick={handleAddModule}
-                whileHover={{ scale: 1.02 }}
-                whileTap={{ scale: 0.98 }}
-                className="flex items-center gap-2 px-5 py-2.5 bg-gradient-to-r from-purple-600 to-blue-600 rounded-xl text-sm font-bold shadow-lg shadow-purple-500/20 border border-purple-400/20"
-              >
-                <Plus className="w-4 h-4" />
-                Add Module
-              </motion.button>
-            </div>
           </header>
 
           {/* Stats Overview */}
@@ -251,15 +230,7 @@ export default function App() {
             />
           </motion.div>
 
-          <footer className="py-12 border-t border-white/5 flex justify-between items-center text-[10px] uppercase font-mono tracking-[0.2em] text-white/20">
-             <div>SuffaCampus ERP • Deployment Engine v2.4</div>
-             <div className="flex gap-8">
-                <a href="#" className="hover:text-purple-400 transition-colors">Documentation</a>
-                <a href="#" className="hover:text-purple-400 transition-colors">API Status</a>
-                <a href="#" className="hover:text-purple-400 transition-colors">Infrastructure</a>
-             </div>
-             <div>© 2026 Engineering Operations</div>
-          </footer>
+
         </div>
       </main>
     </div>
